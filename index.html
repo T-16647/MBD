@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Mi Biblioteca Digital</title>
+ <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+ 
+ <script src="https://accounts.google.com/gsi/client" async defer></script>
+ <script src="https://apis.google.com/js/api.js" async defer></script>
+
+ <style>
+ :root {
+ --bg-dark: #121212;
+ --card-bg: #1e1e1e;
+ --gold-primary: #d4af37;
+ --gold-hover: #f3e5ab;
+ --text-light: #f5f5f5;
+ --text-muted: #aaaaaa;
+ --border-color: #333333;
+ --danger: #e74c3c;
+ --blue-accent: #3498db;
+ }
+
+ * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+ body { background-color: var(--bg-dark); color: var(--text-light); min-height: 100vh; display: flex; flex-direction: column; }
+
+ header { 
+ background-color: #0a0a0a; 
+ border-bottom: 2px solid var(--gold-primary); 
+ padding: 1.5rem 2rem; 
+ text-align: center; 
+ display: flex;
+ flex-direction: column;
+ align-items: center;
+ justify-content: center;
+ gap: 0.8rem;
+ }
+
+ .header-brand {
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ gap: 1rem;
+ flex-wrap: wrap;
+ }
+
+ .header-logo {
+ width: 60px;
+ height: 60px;
+ object-fit: cover;
+ border-radius: 50%;
+ border: 2px solid var(--gold-primary);
+ }
+
+ .logo-title { font-size: 2rem; font-weight: 700; color: var(--text-light); }
+ .logo-title span { color: var(--gold-primary); }
+ .slogan { color: var(--text-muted); font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase; }
+
+ .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; flex: 1; width: 100%; }
+
+ .controls {
+ display: flex; justify-content: space-between; align-items: center;
+ flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; background: var(--card-bg);
+ padding: 1rem 1.5rem; border-radius: 8px; border: 1px solid var(--border-color);
+ }
+
+ .btn-gold {
+ background: linear-gradient(135deg, #d4af37, #aa820a); color: #000; border: none;
+ padding: 0.75rem 1.5rem; font-weight: 600; border-radius: 5px; cursor: pointer;
+ transition: all 0.3s ease;
+ }
+
+ .btn-gold:hover { background: var(--gold-hover); transform: translateY(-2px); }
+
+ .filter-group { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+ .filter-group label { font-size: 0.9rem; color: var(--text-muted); }
+
+ select, input, textarea {
+ background-color: #2a2a2a; color: var(--text-light); border: 1px solid var(--border-color);
+ padding: 0.6rem; border-radius: 5px; outline: none; width: 100%;
+ }
+
+ .form-section-title {
+ font-size: 0.85rem; color: var(--gold-primary); margin-bottom: 0.3rem; font-weight: 600; display: block;
+ border-bottom: 1px solid #ddd; padding-bottom: 0.2rem; margin-top: 0.6rem;
+ }
+
+ .pill-group-container {
+ display: flex;
+ flex-wrap: wrap;
+ gap: 0.4rem;
+ background: #f8f9fa;
+ padding: 0.6rem;
+ border: 1px solid #cccccc;
+ border-radius: 4px;
+ max-height: 110px;
+ overflow-y: auto;
+ margin-bottom: 0.5rem;
+ }
+
+ .pill-type { background-color: #e3f2fd; color: #0d47a1; border: 1px solid #90caf9; padding: 0.3rem 0.6rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; cursor: pointer; user-select: none; }
+ .pill-type.selected { background-color: #1976d2; color: white; border-color: #0d47a1; }
+
+ .pill-demographic { background-color: #e0f2f1; color: #004d40; border: 1px solid #80cbc4; padding: 0.3rem 0.6rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; cursor: pointer; user-select: none; }
+ .pill-demographic.selected { background-color: #00897b; color: white; border-color: #004d40; }
+
+ .pill-genre { background-color: #f3e5f5; color: #4a148c; border: 1px solid #ce93d8; padding: 0.3rem 0.6rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; cursor: pointer; user-select: none; }
+ .pill-genre.selected { background-color: #8e44ad; color: white; border-color: #512da8; }
+
+ .pill-subgenre { background-color: #fff8e1; color: #ff8f00; border: 1px solid #ffe082; padding: 0.3rem 0.6rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; cursor: pointer; user-select: none; }
+ .pill-subgenre.selected { background-color: #ffa000; color: white; border-color: #ff8f00; }
+
+ .pill-theme { background-color: #eceff1; color: #263238; border: 1px solid #cfd8dc; padding: 0.3rem 0.6rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; cursor: pointer; user-select: none; }
+ .pill-theme.selected { background-color: #455a64; color: white; border-color: #263238; }
+
+ .add-row { display: flex; gap: 0.4rem; margin-bottom: 0.5rem; }
+ .btn-add-dynamic { background-color: var(--blue-accent); color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.8rem; white-space: nowrap; }
+
+ .modal {
+ display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+ background: rgba(0, 0, 0, 0.85); justify-content: center; align-items: center; z-index: 100; padding: 1rem;
+ }
+
+ .modal-content-form {
+ background: #ffffff; color: #333333; padding: 1.5rem; border-radius: 8px;
+ width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+ }
+
+ .form-group-custom { margin-bottom: 0.8rem; }
+ .form-group-custom input, .form-group-custom select, .form-group-custom textarea {
+ background-color: #f8f9fa; color: #333333; border: 1px solid #cccccc;
+ border-radius: 4px; padding: 0.6rem; font-size: 0.9rem; width: 100%;
+ }
+
+ .file-select-btn {
+ background-color: #eeeeee; color: #666666; text-align: center; padding: 0.6rem;
+ border-radius: 4px; cursor: pointer; font-size: 0.85rem; border: 1px solid #dddddd; display: block;
+ }
+
+ .chapters-form-section { border: 1px solid #dddddd; background: #fdfdfd; padding: 0.8rem; border-radius: 5px; margin-bottom: 0.8rem; }
+ .chapters-form-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+ .btn-add-chapter { background-color: #27ae60; color: white; border: none; padding: 0.3rem 0.7rem; border-radius: 4px; font-size: 0.8rem; cursor: pointer; font-weight: 600; }
+ .chapter-row { display: flex; gap: 0.4rem; margin-bottom: 0.4rem; }
+ .chapter-row input { padding: 0.4rem; font-size: 0.85rem; }
+ .btn-remove-row { background-color: var(--danger); color: white; border: none; padding: 0 0.6rem; border-radius: 4px; cursor: pointer; font-weight: bold; }
+
+ .modal-action-btns { display: flex; justify-content: flex-end; gap: 0.8rem; margin-top: 1rem; }
+ .btn-form-cancel { background-color: #95a5a6; color: #ffffff; border: none; padding: 0.6rem 1.2rem; border-radius: 4px; cursor: pointer; font-weight: 600; }
+ .btn-form-save { background-color: #3498db; color: #ffffff; border: none; padding: 0.6rem 1.2rem; border-radius: 4px; cursor: pointer; font-weight: 600; }
+
+ .badge-type { background-color: #1565c0; color: #fff; padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.7rem; margin-right: 3px; }
+ .badge-demographic { background-color: #00695c; color: #fff; padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.7rem; margin-right: 3px; }
+ .genre-tag-badge { background-color: #4a148c; color: #e1bee7; padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.7rem; margin-right: 3px; margin-bottom: 3px; display: inline-block; }
+ .subgenre-tag-badge { background-color: #ff8f00; color: #fff8e1; padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.7rem; margin-right: 3px; margin-bottom: 3px; display: inline-block; }
+ .theme-tag-badge { background-color: #37474f; color: #cfd8dc; padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.7rem; margin-right: 3px; margin-bottom: 3px; display: inline-block; }
+
+ .grid-books { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem; }
+ .book-card { background-color: var(--card-bg); border-radius: 8px; border: 1px solid var(--border-color); overflow: hidden; display: flex; flex-direction: column; transition: transform 0.3s ease; }
+ .book-card:hover { transform: translateY(-5px); border-color: var(--gold-primary); }
+ 
+ .book-cover { width: 100%; height: 280px; object-fit: cover; background-color: #2b2b2b; }
+ .book-details { padding: 1rem; display: flex; flex-direction: column; flex: 1; }
+ .book-title { font-size: 1.1rem; font-weight: 600; color: var(--gold-primary); margin-bottom: 0.2rem; }
+ .book-author { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.4rem; }
+ .book-meta { font-size: 0.75rem; color: var(--text-light); margin-bottom: 0.5rem; line-height: 1.6; }
+ 
+ .book-badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; margin-bottom: 0.8rem; width: fit-content; text-transform: capitalize; }
+ .badge-siguiendo, .badge-releyendo { background-color: #2980b9; color: #fff; }
+ .badge-leido, .badge-finalizando { background-color: #27ae60; color: #fff; }
+ .badge-pendiente { background-color: #e67e22; color: #fff; }
+ .badge-favorito { background-color: #8e44ad; color: #fff; }
+ .badge-abandonado { background-color: #c0392b; color: #fff; }
+
+ .book-rating { font-size: 0.9rem; margin-bottom: 0.5rem; }
+ .book-synopsis { font-size: 0.85rem; color: #cccccc; margin-bottom: 1rem; flex: 1; word-break: break-word; }
+
+ .chapters-container {
+ margin-bottom: 0.8rem; max-height: 120px; overflow-y: auto; border: 1px solid var(--border-color);
+ border-radius: 4px; padding: 0.4rem; background: #181818;
+ }
+
+ .chapter-item-card {
+ display: flex; justify-content: space-between; align-items: center; padding: 0.3rem 0.5rem;
+ background: #252525; margin-bottom: 0.3rem; border-radius: 3px; font-size: 0.78rem;
+ }
+
+ .chapter-link-btn { background-color: var(--blue-accent); color: #fff; text-decoration: none; padding: 0.2rem 0.5rem; border-radius: 3px; font-weight: 600; }
+
+ .book-actions { display: flex; gap: 0.5rem; margin-top: auto; }
+ .btn-action { flex: 1; padding: 0.4rem; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.8rem; }
+ .btn-edit { background-color: #34495e; color: #fff; }
+ .btn-delete { background-color: var(--danger); color: #fff; }
+
+ footer { text-align: center; padding: 1.5rem; background-color: #0a0a0a; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.85rem; }
+ </style>
+</head>
+<body>
+
+<header>
+ <div class="header-brand">
+ <img src="https://i.postimg.cc/9zwDpCxT/Whats-App-Image-2026-10-13-at-8-17-00-AM-(1).jpg" alt="Logo" class="header-logo">
+ <h1 class="logo-title">Mi Biblioteca <span>Digital</span></h1>
+ </div>
+ <p class="slogan">Lee • Organiza • Gestiona</p>
+</header>
+
+ <main class="container">
+ <div class="controls">
+ <button class="btn-gold" id="btnOpenModal">+ Agregar Nuevo Registro</button>
+ 
+ <div class="filter-group">
+ <label for="filterStatus">Estado:</label>
+ <select id="filterStatus" style="width: auto;">
+ <option value="todos">Todos</option>
+ <option value="pendiente">Pendiente</option>
+ <option value="siguiendo">Siguiendo</option>
+ <option value="favorito">Favorito</option>
+ <option value="releyendo">Releyendo</option>
+ <option value="abandonado">Abandonado</option>
+ <option value="finalizando">Finalizando</option>
+ <option value="leído">Leído</option>
+ </select>
+
+ <label for="filterDemographic">Demografía:</label>
+ <select id="filterDemographic" style="width: auto;">
+ <option value="todos">Todas</option>
+ <option value="Shōnen">Shōnen</option>
+ <option value="Shōjo">Shōjo</option>
+ <option value="Seinen">Seinen</option>
+ <option value="Josei">Josei</option>
+ <option value="Young Adult">Young Adult</option>
+ </select>
+
+ <label for="filterGenre">Género:</label>
+ <select id="filterGenre" style="width: auto;">
+ <option value="todos">Todos</option>
+ <option value="Acción">Acción</option>
+ <option value="Aventura">Aventura</option>
+ <option value="Comedia">Comedia</option>
+ <option value="Drama">Drama</option>
+ <option value="Fantasía">Fantasía</option>
+ <option value="Ciencia ficción">Ciencia ficción</option>
+ <option value="Romance">Romance</option>
+ <option value="Terror">Terror</option>
+ <option value="Misterio">Misterio</option>
+ </select>
+ </div>
+ </div>
+
+ <div class="grid-books" id="booksGrid"></div>
+ </main>
+
+ <!-- MODAL DE FORMULARIO -->
+ <div class="modal" id="bookModal">
+ <div class="modal-content-form">
+ <form id="bookForm">
+ <input type="hidden" id="bookId">
+
+ <div class="form-group-custom">
+ <label class="file-select-btn" for="coverFile" id="coverFileLabel">Seleccionar archivo de portada</label>
+ <input type="file" id="coverFile" accept="image/*" style="display: none;">
+ </div>
+
+ <div class="form-group-custom">
+ <input type="text" id="coverUrl" placeholder="URL de la imagen">
+ </div>
+
+ <div class="form-group-custom">
+ <input type="text" id="title" required placeholder="Título de la obra o documento">
+ </div>
+
+ <!-- TIPO DE OBRA -->
+ <span class="form-section-title">📁 Tipo de Obra</span>
+ <div class="pill-group-container" id="typeGroup">
+ <span class="pill-type selected" data-val="Cómic / Historieta">Cómic / Historieta</span>
+ <span class="pill-type" data-val="Manga">Manga</span>
+ <span class="pill-type" data-val="Manhwa">Manhwa</span>
+ <span class="pill-type" data-val="Manhua">Manhua</span>
+ <span class="pill-type" data-val="Novela ligera">Novela ligera</span>
+ <span class="pill-type" data-val="Novela">Novela</span>
+ <span class="pill-type" data-val="Libro">Libro</span>
+ <span class="pill-type" data-val="Revista / Catálogo">Revista / Catálogo</span>
+ <span class="pill-type" data-val="Documento">Documento</span>
+ </div>
+
+ <!-- DEMOGRAFÍAS -->
+ <span class="form-section-title">👥 Demografías</span>
+ <div class="pill-group-container" id="demographicGroup">
+ <span class="pill-demographic selected" data-val="Shōnen">Shōnen</span>
+ <span class="pill-demographic" data-val="Shōjo">Shōjo</span>
+ <span class="pill-demographic" data-val="Seinen">Seinen</span>
+ <span class="pill-demographic" data-val="Josei">Josei</span>
+ <span class="pill-demographic" data-val="Young Adult">Young Adult</span>
+ </div>
+
+ <!-- GÉNEROS PRINCIPALES -->
+ <span class="form-section-title">⭐ Géneros Principales</span>
+ <div class="pill-group-container" id="genresGroup">
+ <span class="pill-genre" data-genre="Acción">Acción</span>
+ <span class="pill-genre" data-genre="Aventura">Aventura</span>
+ <span class="pill-genre" data-genre="Comedia">Comedia</span>
+ <span class="pill-genre" data-genre="Drama">Drama</span>
+ <span class="pill-genre" data-genre="Fantasía">Fantasía</span>
+ <span class="pill-genre" data-genre="Ciencia ficción">Ciencia ficción</span>
+ <span class="pill-genre" data-genre="Romance">Romance</span>
+ <span class="pill-genre" data-genre="Terror">Terror</span>
+ <span class="pill-genre" data-genre="Misterio">Misterio</span>
+ </div>
+
+ <!-- SUBGÉNEROS -->
+ <span class="form-section-title">📂 Subgéneros</span>
+ <div class="add-row">
+ <input type="text" id="newSubgenreInput" placeholder="Nuevo subgénero...">
+ <button type="button" class="btn-add-dynamic" id="btnAddSubgenre">+ Agregar</button>
+ </div>
+ <div class="pill-group-container" id="subgenresGroup">
+ <span class="pill-subgenre" data-subgenre="Isekai">Isekai</span>
+ <span class="pill-subgenre" data-subgenre="Mecha">Mecha</span>
+ <span class="pill-subgenre" data-subgenre="Harems">Harems</span>
+ <span class="pill-subgenre" data-subgenre="Boys'love">Boys'love (Yaoi)</span>
+ <span class="pill-subgenre" data-subgenre="Girls'love">Girls'love (Yuri)</span>
+ <span class="pill-subgenre" data-subgenre="Sobrenatural">Sobrenatural</span>
+ <span class="pill-subgenre" data-subgenre="Slice of life">Slice of life</span>
+ <span class="pill-subgenre" data-subgenre="Psicológico">Psicológico</span>
+ <span class="pill-subgenre" data-subgenre="Ecchi">Ecchi</span>
+ <span class="pill-subgenre" data-subgenre="Gore">Gore</span>
+ <span class="pill-subgenre" data-subgenre="Tragedia">Tragedia</span>
+ <span class="pill-subgenre" data-subgenre="Hadas / Pixies">Hadas / Pixies</span>
+ <span class="pill-subgenre" data-subgenre="Político">Político</span>
+ <span class="pill-subgenre" data-subgenre="Realismo mágico">Realismo mágico</span>
+ <span class="pill-subgenre" data-subgenre="Romance gótico">Romance gótico</span>
+ <span class="pill-subgenre" data-subgenre="Steampunk">Steampunk</span>
+ <span class="pill-subgenre" data-subgenre="Harem inverso">Harem inverso</span>
+ <span class="pill-subgenre" data-subgenre="Harem inverso arruinado">Harem inverso arruinado</span>
+ <span class="pill-subgenre" data-subgenre="Histórico">Histórico</span>
+ <span class="pill-subgenre" data-subgenre="Erotismo">Erotismo</span>
+ <span class="pill-subgenre" data-subgenre="Recuentos de la vida">Recuentos de la vida</span>
+ </div>
+
+ <!-- TEMÁTICAS -->
+ <span class="form-section-title">🏷️ Temáticas</span>
+ <div class="add-row">
+ <input type="text" id="newThemeInput" placeholder="Nueva temática...">
+ <button type="button" class="btn-add-dynamic" id="btnAddTheme">+ Agregar</button>
+ </div>
+ <div class="pill-group-container" id="themesGroup">
+ <span class="pill-theme" data-theme="Magia">Magia</span>
+ <span class="pill-theme" data-theme="Apocaliptico">Apocaliptico</span>
+ <span class="pill-theme" data-theme="Reencarnación">Reencarnación</span>
+ <span class="pill-theme" data-theme="Escolar">Escolar</span>
+ <span class="pill-theme" data-theme="Artes marciales">Artes marciales</span>
+ <span class="pill-theme" data-theme="Crimen">Crimen</span>
+ <span class="pill-theme" data-theme="Cyberpunk">Cyberpunk</span>
+ <span class="pill-theme" data-theme="Militar">Militar</span>
+ <span class="pill-theme" data-theme="Musica">Musica</span>
+ <span class="pill-theme" data-theme="Supervivencia">Supervivencia</span>
+ <span class="pill-theme" data-theme="Brujas">Brujas</span>
+ <span class="pill-theme" data-theme="Realeza">Realeza</span>
+ <span class="pill-theme" data-theme="Bufones">Bufones</span>
+ <span class="pill-theme" data-theme="Amor prohibido">Amor prohibido</span>
+ <span class="pill-theme" data-theme="Naturaleza">Naturaleza</span>
+ <span class="pill-theme" data-theme="Secretos">Secretos</span>
+ <span class="pill-theme" data-theme="Superación">Superación</span>
+ <span class="pill-theme" data-theme="Maldiciones">Maldiciones</span>
+ <span class="pill-theme" data-theme="Bullying">Bullying</span>
+ <span class="pill-theme" data-theme="Obsesión">Obsesión</span>
+ <span class="pill-theme" data-theme="Yandere">Yandere</span>
+ <span class="pill-theme" data-theme="Escape">Escape</span>
+ <span class="pill-theme" data-theme="Familia">Familia</span>
+ <span class="pill-theme" data-theme="Venganza">Venganza</span>
+ <span class="pill-theme" data-theme="Nobleza">Nobleza</span>
+ <span class="pill-theme" data-theme="Asesinos">Asesinos</span>
+ <span class="pill-theme" data-theme="Prostitución">Prostitución</span>
+ <span class="pill-theme" data-theme="Traición">Traición</span>
+ <span class="pill-theme" data-theme="Relación Adulta">Relación Adulta</span>
+ <span class="pill-theme" data-theme="Profesor y estudiante">Profesor y estudiante</span>
+ <span class="pill-theme" data-theme="Triángulo amoroso">Triángulo amoroso</span>
+ <span class="pill-theme" data-theme="Bucle temporal">Bucle temporal</span>
+ </div>
+
+ <div class="form-group-custom" style="margin-top: 0.8rem;">
+ <label style="font-size: 0.8rem; color: #666; display: block; margin-bottom: 0.2rem;">Estado de Lectura:</label>
+ <select id="status">
+ <option value="pendiente">Pendiente</option>
+ <option value="siguiendo">Siguiendo</option>
+ <option value="favorito">Favorito</option>
+ <option value="releyendo">Releyendo</option>
+ <option value="abandonado">Abandonado</option>
+ <option value="finalizando">Finalizando</option>
+ <option value="leído">Leído</option>
+ </select>
+ </div>
+
+ <div class="form-group-custom">
+ <label style="font-size: 0.8rem; color: #666; display: block; margin-bottom: 0.2rem;">Puntuación:</label>
+ <select id="rating">
+ <option value="5">⭐⭐⭐⭐⭐ (5/5 - Excelente)</option>
+ <option value="4">⭐⭐⭐⭐ (4/5 - Muy bueno)</option>
+ <option value="3">⭐⭐⭐ (3/5 - Bueno)</option>
+ <option value="2">⭐⭐ (2/5 - Regular)</option>
+ <option value="1">⭐ (1/5 - Malo)</option>
+ </select>
+ </div>
+
+ <div class="form-group-custom">
+ <input type="text" id="author" placeholder="Autor / Artista (Opcional)">
+ </div>
+
+ <div class="form-group-custom">
+ <textarea id="synopsis" rows="3" placeholder="Sinopsis o notas de lectura..."></textarea>
+ </div>
+
+ <div class="chapters-form-section">
+ <div class="chapters-form-header">
+ <strong style="font-size: 0.85rem; color: #444;">Lista de Capítulos / Tomos (PDFs)</strong>
+ <button type="button" class="btn-add-chapter" id="btnAddChapterRow">+ Agregar Capítulo</button>
+ </div>
+ <div id="chaptersListContainer"></div>
+ </div>
+
+ <div class="modal-action-btns">
+ <button type="button" class="btn-form-cancel" id="btnCloseModal">Cancelar</button>
+ <button type="submit" class="btn-form-save">Guardar</button>
+ </div>
+ </form>
+ </div>
+ </div>
+
+ <footer>
+ <p>Proyecto de Grado | Bachillerato Técnico Humanístico en Sistemas Informáticos</p>
+ <p>© 2026 María Tabita Díaz Urquizu. Todos los derechos reservados.</p>
+ </footer>
+
+ <script>
+ const booksGrid = document.getElementById('booksGrid');
+ const bookModal = document.getElementById('bookModal');
+ const btnOpenModal = document.getElementById('btnOpenModal');
+ const btnCloseModal = document.getElementById('btnCloseModal');
+ const bookForm = document.getElementById('bookForm');
+ const filterStatus = document.getElementById('filterStatus');
+ const filterDemographic = document.getElementById('filterDemographic');
+ const filterGenre = document.getElementById('filterGenre');
+
+ const coverFile = document.getElementById('coverFile');
+ const coverFileLabel = document.getElementById('coverFileLabel');
+ const coverUrl = document.getElementById('coverUrl');
+ const chaptersListContainer = document.getElementById('chaptersListContainer');
+ const btnAddChapterRow = document.getElementById('btnAddChapterRow');
+
+ const typeGroup = document.getElementById('typeGroup');
+ const demographicGroup = document.getElementById('demographicGroup');
+ const genresGroup = document.getElementById('genresGroup');
+ const subgenresGroup = document.getElementById('subgenresGroup');
+ const themesGroup = document.getElementById('themesGroup');
+
+ const newSubgenreInput = document.getElementById('newSubgenreInput');
+ const btnAddSubgenre = document.getElementById('btnAddSubgenre');
+ const newThemeInput = document.getElementById('newThemeInput');
+ const btnAddTheme = document.getElementById('btnAddTheme');
+
+ let base64Cover = '';
+
+ function setupPillGroup(container, isMultiple = false) {
+ container.addEventListener('click', (e) => {
+ const pill = e.target.closest('span');
+ if (!pill) return;
+ if (!isMultiple) {
+ container.querySelectorAll('span').forEach(p => p.classList.remove('selected'));
+ pill.classList.add('selected');
+ } else {
+ pill.classList.toggle('selected');
+ }
+ });
+ }
+
+ setupPillGroup(typeGroup, false);
+ setupPillGroup(demographicGroup, false);
+ setupPillGroup(genresGroup, true);
+ setupPillGroup(subgenresGroup, true);
+ setupPillGroup(themesGroup, true);
+
+ btnAddSubgenre.addEventListener('click', () => {
+ const val = newSubgenreInput.value.trim();
+ if (!val) return;
+ const existing = Array.from(subgenresGroup.querySelectorAll('span')).some(p => p.getAttribute('data-subgenre').toLowerCase() === val.toLowerCase());
+ if (!existing) {
+ const pill = document.createElement('span');
+ pill.className = 'pill-subgenre selected';
+ pill.setAttribute('data-subgenre', val);
+ pill.textContent = val;
+ subgenresGroup.appendChild(pill);
+ }
+ newThemeInput.value = '';
+ });
+
+ function getSelectedPill(container) {
+ const selected = container.querySelector('span.selected');
+ return selected ? selected.getAttribute('data-val') : '';
+ }
+
+ function setSelectedPill(container, val) {
+ container.querySelectorAll('span').forEach(p => {
+ if (p.getAttribute('data-val') === val) {
+ p.classList.add('selected');
+ } else {
+ p.classList.remove('selected');
+ }
+ });
+ }
+ 
+ let books = [];
+ try {
+     const savedBooks = localStorage.getItem('my_digital_library');
+     if (savedBooks) {
+         books = JSON.parse(savedBooks);
+     }
+ } catch (e) {
+     books = [];
+ }
+
+ if (!Array.isArray(books) || books.length === 0) {
+     books = [
+       {
+         id: "1",
+         title: "el pintor que dibuja mas mazmorras",
+         type: "Manhwa",
+         demographic: "Shōnen",
+         genres: ["Acción", "Fantasía"],
+         subgenres: ["Isekai"],
+         themes: ["Magia"],
+         status: "favorito",
+         rating: "5",
+         author: "Hobby Writing Principle",
+         synopsis: "Un talentoso pintor se adentra en las mazmorras más oscuras.",
+         coverUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdUSKvwDqSJVHmQvoXkjscZxX9yrNewfbQVpoP_l9lvITjS_2xL7-gz1Xe&s=10",
+         coverFile: "",
+         chapters: [
+          { name: "Capítulo 1-10", url: "https://drive.google.com/file/d/1P637nA6xMV-JmjJ6qL-Ait6GlXXfb1Ww/view?usp=drivesdk" },
+          { name: "Capítulo 11-20", url: "https://drive.google.com/file/d/1NdEo2wZfyk8MHM95SHcyGJij158o_1DI/view?usp=drivesdk"},
+          { name: "Capítulo 21-23", url: "https://drive.google.com/file/d/1YK6EA24oSqz9ke6VsjgzEHaLWDv4U_fA/view?usp=drivesdk" },
+          { name: "Capítulo 24", url: "https://drive.google.com/file/d/1YK6EA24oSqz9ke6VsjgzEHaLWDv4U_fA/view?usp=drivesdk"},
+          { name: "Capítulo 25", url: "https://drive.google.com/file/d/1VO_4XZeLfDaIHOOJQnyi2pFDsdLyPTHL/view?usp=drivesdk" },
+          { name: "Capítulo 26", url: "https://drive.google.com/file/d/17o6ePUtn2BDca83YvWgGRt9lFHeErh6e/view?usp=drivesdk"},
+
+         ]
+       },
+
+       {
+         id: "2",
+         title: "las memorias de una bruja",
+         type: "Manhwa",
+         demographic: "Shōjo",
+         genres: ["Fantasía", "Drama", "Romance"],
+         subgenres: ["Tragedia", "Misterio"],
+         themes: ["Brujas", "Realeza", "Bufones"],
+         status: "Favorito",
+         rating: "5",
+         author: "R2verse_T",
+         synopsis: "Lily es una 'Bruja Negra' que fue capturada por los soldados del reino durante una brutal caza de brujas cuando era pequeña. Desde entonces, el tiránico rey Faust la mantiene cautiva en el palacio para explotar sus inmensos poderes mágicos en favor de su corona, obligándola a vivir días oscuros llenos de desprecio y miedo. Todo comienza a cambiar cuando conoce al nuevo bufón de la corte, un enigmático hombre que, a diferencia de todos los demás siervos, no le teme ni la desprecia, ganándose poco a poco su atención.",
+         coverUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRyJWNF6QKlRALx0vL3SlQako3rSkH_G7cchrgFb9jutQ&s=10",
+         coverFile: "",
+         chapters: [
+          { name: "Capítulo 1-3", url: "https://drive.google.com/file/d/1damx9lphdalRMOQSItP74SR0CSPBn0CT/view?usp=drivesdk" },
+  ]
+         },
+
+         {
+         id: "3",
+         title: "La mecanica del corazon",
+         type: "novela",
+         demographic: "Young Adult",
+         genres: ["Fantasía", "Drama", "Romance"],
+         subgenres: ["Realismo mágico", "Romance gótico", "Steampunk"],
+         themes: ["Amor prohibido", "Superación", "Maldiciones", "Bullying"],
+         status: "Favorito",
+         rating: "5",
+         author: "Mathias Malzieu",
+         synopsis: "En la noche más fría de la historia, nace el pequeño Jack con un corazón dañado. Para salvarlo, la partera Madeleine sustituye su órgano por un reloj de madera. Jack sobrevivirá con este corazón artificial siempre y cuando siga tres estrictas reglas: no tocar las agujas, dominar su cólera y, la más difícil de todas, no enamorarse nunca. Todo se complica cuando una pequeña cantante andaluza pone a prueba toda su mecánica.",
+         coverUrl: "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1254001684i/6713167.jpg",
+         coverFile: "",
+         chapters: [
+          { "name": "Completo",url: "https://drive.google.com/file/d/19n9BJvVaSzttuGT_mnDy5viQNTnePSsD/view?usp=drivesdk" },
+          ]
+        },
+
+         {
+         id: "4",
+         title: "wings of starlight",
+         type: "novela",
+         demographic: "Young Adult",
+         genres: ["Fantasía", "Aventura", "Romance"],
+         subgenres: ["Hadas / Pixies", "Magia", "Político"],
+         themes: ["Amor prohibido", "Realeza", "Naturaleza", "Secretos"],
+         status: "Favorito",
+         rating: "5",
+         author: "Allison Saft",
+         synopsis: "Clarion es la futura reina de la Queendom de Pixie Hollow, pero para demostrar su valía antes de su inminente coronación, decide investigar los alarmantes rumores de un monstruo en la frontera del misterioso Bosque de Invierno. Sin embargo, en lugar de una criatura hostil, Clarion encuentra a Milori, un joven guardián del gélido bosque. Mientras ambos se unen en una alianza secreta para salvar sus reinos, nacerá un romance prohibido entre dos mundos que revela por qué las hadas de estaciones cálidas e invernales jamás deben mezclarse.",
+         coverUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNMON_tAMpQ9fPdG5h5zjUjLLgTlcLCkMeS7zocOXSfg&s=10",
+         coverFile: "",
+         chapters: [
+          { "name": "Completo", "url": "https://drive.google.com/file/d/1gXpDS1OPuKasVt1DcEXpeKT07LQoDqYb/view?usp=drivesdk" },
+          ]
+        },
+
+         {
+         id: "5",
+         title: "si estas obsesionada estas condenada",
+         type: "manhwa",
+         demographic: "Shōjo",
+         genres: ["Fantasía", "Drama", "Misterio"],
+         subgenres: ["Harem inverso", "Tragedia", "Psicológico"],
+         themes: ["Obsesión", "Yandere", "Escape", "Maldiciones"],
+         status: "Favorito",
+         rating: "5",
+         author: "Mathias Malzieu",
+         synopsis: "Tras despertar repentinamente en un lugar completamente desconocido y sin recuerdos de su pasado, una joven descubre que su único vínculo con la realidad es un misterioso teléfono móvil. Al intentar recuperar su identidad, se da cuenta de que ha quedado atrapada en una red de afecto asfixiante por parte de peligrosos e influyentes hombres. Lo que parecía un amor profundo resulta ser una prisión invisible, obligándola a idear una huida desesperada antes de que la devoción de sus captores se convierta en su propia tumba.",
+         coverUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRRxO5k3G-uYTjMCdne3GjgMjJKEuxqt6exkM40hBVcig&s=10m",
+         coverFile: "",
+         chapters: [
+          { "name": "Capítulos 1-17", "url": "https://drive.google.com/file/d/1bysSX3Kol6MoT4O413icr3jzinnHaFPM/view?usp=drivesdk" },
+          ]
+        },
+
+         {
+         id: "6",
+         title: "me converti en la cuñada mas joven de los protagonistas",
+         type: "manhwa",
+         demographic: "Shōjo",
+         genres: ["Fantasía", "Drama", "Romance"],
+         subgenres: ["Isekai", "Harem inverso arruinado"],
+         themes: ["Reencarnación", "Venganza", "Familia", "Nobleza"],
+         status: "Favorito",
+         rating: "5",
+         author: "Flowing Honey",
+         synopsis: "Una mujer recupera inesperadamente los recuerdos de su vida pasada y descubre que ha reencarnado dentro de una retorcida novela de harén inverso que está destinada a la ruina. En la trama original, la protagonista principal busca venganza manipulando cruelmente a los protagonistas masculinos, un camino de caos que terminará por destruir a toda su familia. Para evitar un trágico final, ella decide intervenir activamente y cambiar el destino de sus seres queridos, especialmente ahora que su hermana mayor está comprometida con el mismísimo Príncipe Heredero.",
+         coverUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTvhhh3afwVhAIIA4N0r4w2A_vF3qfg2LQKNmUqt3zN-w&s=10",
+         coverFile: "",
+         chapters: [
+          { name: "Capitulo 00-10", url: "https://drive.google.com/file/d/1cQ3NX_rw9GS9GkMMYQWL2qoiQZO9HlCl/view?usp=drivesdk" },
+          { name: "Capituloo 11-22", url: "https://drive.google.com/file/d/1cW3lSgQnrjhD2cwqOmnSVCo4aP2efpC4/view?usp=drivesdk" },
+         ]
+       },
+
+         {
+         id: "7",
+         title: "Living will",
+         type: "manhwa",
+         demographic: "Shōjo",
+         genres: ["Drama", "Romance",],
+         subgenres: ["Girls'love (Yuri)", "Histórico", "Tragedia", "Psicológico",],
+         themes: ["Asesinos", "Prostitución", "Secretos", "Traición"],
+         status: "Favorito",
+         rating: "5",
+         author: "Mina / ZIHO",
+         synopsis: "Jeanne, una prostituta que trabaja en la peligrosa Calle 74, encuentra un día a una misteriosa mujer herida llamada Janet y decide llevarla a su hogar para cuidarla. Mientras Jeanne busca de manera genuina forjar un lazo de amistad sincera, no imagina que Janet oculta una identidad sombría como asesina y que su único propósito real al acercarse es extraerle información crucial, desencadenando una tensa e inevitable encrucijada.",
+         coverUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQq-wNLkBVqe7460Soh1wr3wfnOgppFqOoG6rp7oaGMYeyLkej7bk35Ka05&s=10",
+         coverFile: "",
+         chapters: [
+          { "name": "01-10+Extra", "url": "https://drive.google.com/file/d/1cWt1rxMR4amOrzL4TLVGKPjce2_Z64FL/view?usp=drivesd" },
+          ]
+        },
+    
+         {
+         id: "8",
+         title: "mi lanza y escudo",
+         type: "novela",
+         demographic: "Josei",
+         genres: ["Romance", "Drama"],
+         subgenres: ["Girls'love (Yuri)", "Recuentos de la vida", "Erotismo"],
+         themes: ["Relación Adulta", "Profesor y estudiante", "Triángulo amoroso"],
+         status: "Favorito",
+         rating: "5",
+         author: "Cinna & Bisha",
+         synopsis: "Una intensa y apasionada historia madura centrada en las complejidades del deseo y las dinámicas de poder entre mujeres. La trama explora los límites éticos y afectivos de un romance prohibido entre una profesora y su estudiante, atrapadas en un laberinto emocional marcado por un ineludible triángulo amoroso. A medida que sus mundos chocan, ambas deberán decidir si convertirse en el arma que ataca o en la defensa que resiste.",
+         coverUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTd37meplp4-P7WfeRsq0UbnkadHiwMRULPQRMquejiBUO-hz82lsI6COA&s=10",
+         coverFile: "",
+         chapters: [
+          { "name": "Capítulo 21", "url": "https://drive.google.com/file/d/1dSd2lJ2kw6gbeXa_0QakmRibiD3mNXmF/view?usp=drivesdk" },
+          ]
+        },
+    
+         {
+         id: "9",
+         title: "Re:Zero",
+         type: "novela",
+         demographic: "Seinen",
+         genres: ["Fantasía", "Drama", "Misterio"],
+         subgenres: ["Isekai", "Psicológico", "Tragedia"],
+         themes: ["Bucle temporal", "Superación", "Maldiciones", "Gore"],
+         status: "Favorito",
+         rating: "5",
+         author: "Tappei Nagatsuki",
+         synopsis: "Subaru Natsuki es un estudiante de preparatoria común que termina repentinamente transportado a un mundo paralelo de fantasía al salir de una tienda de conveniencia. Tras ser atacado por unos matones, es rescatado por una hermosa joven de cabello plateado llamada Emilia. Al intentar devolverle el favor ayudándola a recuperar un objeto robado, ambos son brutalmente asesinados. Es en ese trágico instante cuando Subaru despierta en el mismo punto de partida, descubriendo que posee la aterradora habilidad de regresar de la muerte reviviendo el tiempo.",
+         coverUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSjw1NyEaOLEm7X4kZHK4OYkjA7cAOuXDkzg3ufMvyjqw&s=10",
+         coverFile: "",
+         chapters: [
+          { name: "vol 1", url: "https://drive.google.com/file/d/1scumPRqJUrknNANQlgBGf1S6nZPQO3bL/view?usp=drivesdk" },
+          { name: "vol 2", url: "https://drive.google.com/file/d/1N1OBXflY4pr1dZr7zXX8zOluOj1BYP-T/view?usp=drivesdk" },
+          { name: "vol 3", url: "https://drive.google.com/file/d/1r49YHrkt2H1nLJL0HiyCUyb5CP5JLGPb/view?usp=drivesdk" },
+      ]
+    }, 
+
+     ];
+     localStorage.setItem('my_digital_library', JSON.stringify(books));
+ }
+
+ function saveToLocalStorage() {
+     localStorage.setItem('my_digital_library', JSON.stringify(books));
+ }
+
+ function createChapterRow(name = '', url = '') {
+ const row = document.createElement('div');
+ row.className = 'chapter-row';
+ row.innerHTML = `
+ <input type="text" placeholder="Nombre (Ej: Cap 01)" class="chap-name" value="${name}" style="flex: 1;" required>
+ <input type="url" placeholder="Enlace Drive" class="chap-url" value="${url}" style="flex: 2;" required>
+ <button type="button" class="btn-remove-row" onclick="this.parentElement.remove()">✕</button>
+ `;
+ chaptersListContainer.appendChild(row);
+ }
+
+ btnAddChapterRow.addEventListener('click', () => createChapterRow());
+
+ coverFile.addEventListener('change', (e) => {
+ const file = e.target.files[0];
+ if (file) {
+ coverFileLabel.textContent = file.name;
+ const reader = new FileReader();
+ reader.onload = function(evt) {
+ const img = new Image();
+ img.src = evt.target.result;
+ img.onload = function() {
+ const canvas = document.createElement('canvas');
+ const MAX_WIDTH = 300;
+ const scaleFactor = MAX_WIDTH / img.width;
+ canvas.width = MAX_WIDTH;
+ canvas.height = img.height * scaleFactor;
+ const ctx = canvas.getContext('2d');
+ ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+ base64Cover = canvas.toDataURL('image/jpeg', 0.7);
+ coverUrl.value = ''; 
+ }
+ };
+ reader.readAsDataURL(file);
+ }
+ });
+
+ function renderBooks() {
+ booksGrid.innerHTML = '';
+ const selectedStatus = filterStatus.value;
+ const selectedDemographic = filterDemographic.value;
+ const selectedGenre = filterGenre.value;
+
+ const filteredBooks = books.filter(book => {
+ const matchesStatus = (selectedStatus === 'todos' || book.status === selectedStatus);
+ const matchesDemographic = (selectedDemographic === 'todos' || book.demographic === selectedDemographic);
+ const bookGenres = book.genres || [];
+ const matchesGenre = (selectedGenre === 'todos' || bookGenres.includes(selectedGenre));
+ return matchesStatus && matchesDemographic && matchesGenre;
+ });
+
+ if (filteredBooks.length === 0) {
+ booksGrid.innerHTML = '<p style="color: var(--text-muted); grid-column: 1/-1; text-align: center;">No hay registros guardados con estos filtros.</p>';
+ return;
+ }
+
+ filteredBooks.forEach(book => {
+ const defaultCover = 'https://via.placeholder.com/240x280/1e1e1e/d4af37?text=Sin+Portada';
+ const card = document.createElement('div');
+ card.className = 'book-card';
+
+ let badgeClass = 'badge-pendiente';
+ if (['siguiendo', 'releyendo'].includes(book.status)) badgeClass = 'badge-siguiendo';
+ if (['leído', 'finalizando'].includes(book.status)) badgeClass = 'badge-leido';
+ if (book.status === 'favorito') badgeClass = 'badge-favorito';
+ if (book.status === 'abandonado') badgeClass = 'badge-abandonado';
+
+ const finalCover = book.coverFile || book.coverUrl || defaultCover;
+ const stars = '⭐'.repeat(parseInt(book.rating || 5));
+ 
+ const bookGenres = book.genres || [];
+ let genresHTML = '';
+ bookGenres.forEach(g => { genresHTML += `<span class="genre-tag-badge">${g}</span>`; });
+
+ const bookSubgenres = book.subgenres || [];
+ let subgenresHTML = '';
+ bookSubgenres.forEach(s => { subgenresHTML += `<span class="subgenre-tag-badge">${s}</span>`; });
+
+ const bookThemes = book.themes || [];
+ let themesHTML = '';
+ bookThemes.forEach(t => { themesHTML += `<span class="theme-tag-badge">${t}</span>`; });
+
+ let chaptersHTML = '';
+ if (book.chapters && book.chapters.length > 0) {
+ chaptersHTML = '<div class="chapters-container">';
+ book.chapters.forEach(ch => {
+ chaptersHTML += `
+ <div class="chapter-item-card">
+ <span>📖 ${ch.name}</span>
+ <a href="${ch.url}" target="_blank" class="chapter-link-btn">Abrir PDF</a>
+ </div>
+ `;
+ });
+ chaptersHTML += '</div>';
+ } else {
+ chaptersHTML = '<p style="font-size:0.75rem; color:#888; margin-bottom:0.5rem;">Sin capítulos registrados.</p>';
+ }
+
+ card.innerHTML = `
+ <img src="${finalCover}" alt="${book.title}" class="book-cover" onerror="this.src='${defaultCover}'">
+ <div class="book-details">
+ <div class="book-meta">
+ <span class="badge-type">📁 ${book.type || 'N/A'}</span>
+ <span class="badge-demographic">👥 ${book.demographic || 'N/A'}</span>
+ <div style="margin-top: 4px;"><b>Géneros:</b> ${genresHTML || '<span style="color:#888;">Ninguno</span>'}</div>
+ <div style="margin-top: 2px;"><b>Subgéneros:</b> ${subgenresHTML || '<span style="color:#888;">Ninguno</span>'}</div>
+ <div style="margin-top: 2px;"><b>Temáticas:</b> ${themesHTML || '<span style="color:#888;">Ninguna</span>'}</div>
+ </div>
+ <h3 class="book-title">${book.title}</h3>
+ ${book.author ? `<p class="book-author">Por: ${book.author}</p>` : ''}
+ <div class="book-rating">${stars}</div>
+ <span class="book-badge ${badgeClass}">${book.status}</span>
+ <p class="book-synopsis">${book.synopsis || 'Sin descripción disponible.'}</p>
+ 
+ <strong style="font-size:0.8rem; color:var(--gold-primary); margin-bottom:0.3rem; display:block;">Capítulos / Archivos:</strong>
+ ${chaptersHTML}
+
+ <div class="book-actions">
+ <button class="btn-action btn-edit" onclick="editBook('${book.id}')">Editar</button>
+ <button class="btn-action btn-delete" onclick="deleteBook('${book.id}')">Eliminar</button>
+ </div>
+ </div>
+ `;
+ booksGrid.appendChild(card);
+ });
+ }
+
+ btnOpenModal.addEventListener('click', () => {
+ bookForm.reset();
+ document.getElementById('bookId').value = '';
+ coverFileLabel.textContent = 'Seleccionar archivo de portada';
+ chaptersListContainer.innerHTML = '';
+ base64Cover = '';
+ 
+ typeGroup.querySelectorAll('span').forEach((p, idx) => p.classList.toggle('selected', idx === 0));
+ demographicGroup.querySelectorAll('span').forEach((p, idx) => p.classList.toggle('selected', idx === 0));
+ genresGroup.querySelectorAll('span').forEach(p => p.classList.remove('selected'));
+ subgenresGroup.querySelectorAll('span').forEach(p => p.classList.remove('selected'));
+ themesGroup.querySelectorAll('span').forEach(p => p.classList.remove('selected'));
+
+ createChapterRow('Cap 1', '');
+ bookModal.style.display = 'flex';
+ });
+
+ btnCloseModal.addEventListener('click', () => { bookModal.style.display = 'none'; });
+
+ bookForm.addEventListener('submit', (e) => {
+ e.preventDefault();
+ const id = document.getElementById('bookId').value;
+ 
+ const chapterRows = chaptersListContainer.querySelectorAll('.chapter-row');
+ const chapters = [];
+ chapterRows.forEach(row => {
+ const name = row.querySelector('.chap-name').value;
+ const url = row.querySelector('.chap-url').value;
+ if (name && url) chapters.push({ name, url });
+ });
+
+ const selectedGenres = [];
+ genresGroup.querySelectorAll('span.selected').forEach(pill => {
+ selectedGenres.push(pill.getAttribute('data-genre'));
+ });
+
+ const selectedSubgenres = [];
+ subgenresGroup.querySelectorAll('span.selected').forEach(pill => {
+ selectedSubgenres.push(pill.getAttribute('data-subgenre'));
+ });
+
+ const selectedThemes = [];
+ themesGroup.querySelectorAll('span.selected').forEach(pill => {
+ selectedThemes.push(pill.getAttribute('data-theme'));
+ });
+
+ const record = {
+ id: id || Date.now().toString(),
+ title: document.getElementById('title').value,
+ type: getSelectedPill(typeGroup),
+ demographic: getSelectedPill(demographicGroup),
+ genres: selectedGenres,
+ subgenres: selectedSubgenres,
+ themes: selectedThemes,
+ status: document.getElementById('status').value,
+ rating: document.getElementById('rating').value,
+ author: document.getElementById('author').value,
+ synopsis: document.getElementById('synopsis').value,
+ coverUrl: document.getElementById('coverUrl').value,
+ coverFile: base64Cover,
+ chapters: chapters
+ };
+
+ if (id) {
+ books = books.map(b => b.id === id ? record : b);
+ } else {
+ books.push(record);
+ }
+
+ saveToLocalStorage();
+ renderBooks();
+ bookModal.style.display = 'none';
+ });
+
+ window.editBook = function(id) {
+ const book = books.find(b => b.id === id);
+ if (!book) return;
+
+ document.getElementById('bookId').value = book.id;
+ document.getElementById('title').value = book.title;
+ setSelectedPill(typeGroup, book.type);
+ setSelectedPill(demographicGroup, book.demographic);
+
+ document.getElementById('status').value = book.status;
+ document.getElementById('rating').value = book.rating || '5';
+ document.getElementById('author').value = book.author || '';
+ document.getElementById('synopsis').value = book.synopsis || '';
+ document.getElementById('coverUrl').value = book.coverUrl || '';
+
+ base64Cover = book.coverFile || '';
+
+ const bookGenres = book.genres || [];
+ genresGroup.querySelectorAll('span').forEach(pill => {
+ const gName = pill.getAttribute('data-genre');
+ pill.classList.toggle('selected', bookGenres.includes(gName));
+ });
+
+ const bookSubgenres = book.subgenres || [];
+ subgenresGroup.querySelectorAll('span').forEach(pill => {
+ const sName = pill.getAttribute('data-subgenre');
+ pill.classList.toggle('selected', bookSubgenres.includes(sName));
+ });
+
+ const bookThemes = book.themes || [];
+ themesGroup.querySelectorAll('span').forEach(pill => {
+ const tName = pill.getAttribute('data-theme');
+ pill.classList.toggle('selected', bookThemes.includes(tName));
+ });
+
+ chaptersListContainer.innerHTML = '';
+ if (book.chapters && book.chapters.length > 0) {
+ book.chapters.forEach(ch => createChapterRow(ch.name, ch.url));
+ } else {
+ createChapterRow();
+ }
+
+ bookModal.style.display = 'flex';
+ };
+
+ window.deleteBook = function(id) {
+ if (confirm('¿Estás segura de eliminar este registro?')) {
+ books = books.filter(b => b.id !== id);
+ saveToLocalStorage();
+ renderBooks();
+ }
+ };
+
+ filterStatus.addEventListener('change', () => renderBooks());
+ filterDemographic.addEventListener('change', () => renderBooks());
+ filterGenre.addEventListener('change', () => renderBooks());
+ renderBooks();
+ </script>
+</body>
+</html>
